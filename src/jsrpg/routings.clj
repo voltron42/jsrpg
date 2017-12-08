@@ -9,13 +9,18 @@
             [compojure.route :as route]
             [clojure.string :as string]))
 
-(defn sub-key [arg]
-    (cond (keyword? arg) (str "state." (string/lower-case (name arg)))
-          :else (str arg)))
+(defn sub-key [str-fn]
+  (fn [arg]
+    (cond (keyword? arg) (str "state." (name arg))
+          (string? arg) (str-fn arg)
+          :else (str arg))))
+
+(defn operation [operator str-fn]
+  (fn [& args]
+    (apply str (interpose (str " " operator " ") (map (sub-key str-fn) args)))))
 
 (defn math-op [operator]
-  (fn [& args]
-    (apply str (interpose (str " " operator " ") (map sub-key args)))))
+  (operation operator str))
 
 (def fn-map {'+ (math-op "+")
              '- (math-op "-")
@@ -24,13 +29,14 @@
              '> (math-op ">")
              '| (math-op "||")
              '& (math-op "&&")
-             'd100 (fn [_] "d100()")
-             'd10 (fn [_] "d10()")
+             '$ (operation "+" #(str "\"" % "\""))
+             'd100 (fn [] "d100()")
+             'd10 (fn [] "d10()")
              '$#!+ (fn [msg] (str "throwException('" msg "')"))
              '?= (fn [arg]
-                   (str "state." (string/lower-case (name arg)) "?true:false"))
+                   (str "state." (name arg) "?true:false"))
              '!?= (fn [arg]
-                   (str "state." (string/lower-case (name arg)) "?false:true"))})
+                   (str "state." (name arg) "?false:true"))})
 
 (defn encode-list [l]
   (println (first l))
@@ -45,6 +51,10 @@
 (add-encoder clojure.lang.PersistentList
              (fn [l jg]
                (.writeString jg (str "${" (encode-list l) "}"))))
+
+(add-encoder clojure.lang.Keyword
+             (fn [k jg]
+               (.writeString jg (name k))))
 
 (defn build-app []
   (sweet/routes

@@ -1,1 +1,398 @@
-{}
+{
+ :actions #{}
+ :directions #{:NORTH :SOUTH :EAST :WEST :UP :DOWN}
+ :init {
+        :STRENGTH (+ 60 (d100))
+        :WEALTH (+ 0 (d100))
+        :TALLY 0
+        :ROOM 6
+        :FOOD 0
+        :MONSTERCOUNT 0
+        }
+ :complete {
+            :ROOM 11
+            :SCORE (+ :FOOD (* 3 :TALLY) (* 5 :STRENGTH) (* 2 :WEALTH) (* 30 :MONSTERCOUNT))
+            }
+ :major [{:STRENGTH (- :STRENGTH 5)}
+          [
+           (< :STRENGTH 10)
+           "WARNING, YOUR STRENGTH"
+           "IS RUNNING LOW"
+           ]
+          [
+           (> 1 :STRENGTH)
+           ($#!+ "YOU ARE DEAD")
+           ]
+          {:TALLY (+ 1 :TALLY)}
+          ($ "YOUR STRENGTH IS " :STRENGTH)
+          [
+           (< 0 :WEALTH)
+           ($ "YOU HAVE " :WEALTH " GOLD")
+           ]
+          [
+           (< 0 :FOOD)
+           ($ "YOU HAVE " :FOOD " PROVISIONS")
+           ]
+          [
+           (?= :ARMOR)
+           "YOU ARE WEARING ARMOR"
+           ]
+          [
+           (| (?= :SWORD) (?= :AXE))
+           "YOU ARE CARRYING"
+           ]
+          [
+           (?= :SWORD)
+           "A SWORD"
+           ]
+          [
+           (?= :AXE)
+           "AN AXE"
+           ]
+          [
+           (& (| (?= :SWORD) (?= :AXE)) (?= :AMULET))
+           "AND"
+           ]
+          [
+           (?= :AMULET)
+           "THE MAGIC AMULET"
+           ]
+          [
+           (!?= :LIGHT)
+           "IT IS TOO DARK TO SEE ANYTHING"
+           ]]
+ :store [
+         {
+          :name "FLAMING TORCH"
+          :cost 15
+          :maxcount 1
+          :effect {:PURCHASE {:light true}}
+          }
+         {
+          :name "AXE"
+          :cost 10
+          :maxcount 1
+          :effect {:PURCHASE {:axe true} :EQUIP {:weapon :axe} :COMBAT {:danger (* :danger 4/5)}}
+          }
+         {
+          :name "SWORD"
+          :cost 20
+          :maxcount 1
+          :effect {:PURCHASE {:sword true} :EQUIP {:weapon :sword} :COMBAT {:danger (* :danger 3/4)}}
+          }
+         {
+          :name "FOOD"
+          :cost 2
+          :minuse 1
+          :effect {:PURCHASE {:food (+ 1 :food)} :USE {:food (- :food 1) :danger (* :danger 3/4)}}
+          }
+         {
+          :name "MAGIC AMULET"
+          :cost 30
+          :maxcount 1
+          :effect {:PURCHASE {:amulet true}}
+          }
+         {
+          :name "SUIT OF ARMOR"
+          :cost 50
+          :maxcount 1
+          :effect {:PURCHASE {:armor true}}
+          }]
+ :monsters [{
+             :name "FEROCIOUS WEREWOLF"
+             :danger 5
+             }
+            {
+             :name "FANATICAL FLESHGORGER"
+             :danger 10
+             }
+            {
+             :name "MALOVENTY MALDEMER"
+             :danger 15
+             }
+            {
+             :name "DEVASTATING ICE-DRAGON"
+             :danger 20
+             }
+            {
+             :name "HORRENDOUS HODGEPODGER"
+             :danger 25
+             }
+            {
+             :name "GHASTLY GRUESOMENESS"
+             :danger 30
+             }]
+ :rooms {
+         1 {
+            :description [
+                          "YOU ARE IN THE HALLWAY"
+                          [(> (d10) 4)
+                           "FROM THE DUST ON THE GROUND YOU CAN TELL"
+                           "NO-ONE HAS WALKED HERE FOR A LONG, LONG TIME"]
+                          "THERE IS A DOOR TO THE SOUTH"
+                          "THROUGH WINDOWS TO THE NORTH YOU CAN SEE A SECRET HERB GARDEN"
+                          ]
+            :doors {
+                    :SOUTH 2
+                    }
+            }
+         2 {
+            :description [
+                          "THIS IS THE AUDIENCE CHAMBER"
+                          [
+                           (> (d10) 4)
+                           "THE FADED TAPE STRIES ON THE WALL ONLY"
+                           "HINT AT THE SPLENDOR WHICH THIS ROOM ONCE HAD"
+                           ]
+                          "THERE IS A WINDOW TO THE WEST BY LOOKING TO THE RIGHT"
+                          "THROUGH IT YOU CAN SEE THE ENTRANCE TO THE CASTLE."
+                          ]
+            :doors {
+                    :NORTH 1
+                    :SOUTH 3
+                    :EAST 3
+                    }
+            }
+         3 {
+            :description [
+                          "YOU ARE IN THE GREAT HALL, AN L-SHAPED ROOM"
+                          "THERE ARE TWO DOORS IN THIS ROOM"
+                          "THE WOOD PANELS ARE WARPED AND FADED..."
+                          [
+                           (> (d10) 4)
+                           "AS YOU STAND THERE, YOU HEAR A MOUSE SCAMPER ALONG"
+                           "THE FLOOR BEHIND YOU..."
+                           "YOU WHIRL AROUND...BUT SEE NOTHING!"
+                           ]
+                          ]
+            :doors {
+                    :NORTH 2
+                    :EAST 5
+                    :WEST 2
+                    }
+            }
+         4 {
+            :description [
+                          "THIS IS THE MONARCH'S PRIVATE MEETING ROOM"
+                          [
+                           (< (d10) 4)
+                           "THE ECHO OF ANCIENT PLOTTING AND WRANGLING HANGS"
+                           "HEAVY IN THE MUSTY AIR..."
+                           ]
+                          "THERE IS A SINGLE EXIT TO THE SOUTH"
+                          ]
+            :doors {
+                    :SOUTH 5
+                    }
+            }
+         5 {
+            :description [
+                          "THIS INNER HALLWAY CONTAINS A DOOR TO THE NORTH,"
+                          "AND ONE TO THE WEST, AND A CIRCULAR STAIRWELL"
+                          "PASSES THROUGH THE ROOM"
+                          [
+                           (> (d10) 6)
+                           "THE ROOM IS SMALL, AND UNFRIENDLY"
+                           ]
+                          "YOU CAN SEE AN ORNAMENTAL LAKE THROUGH THE"
+                          "WINDOWS TO THE SOUTH"
+                          ]
+            :doors {
+                    :NORTH 4
+                    :WEST 3
+                    :UP 15
+                    :DOWN 13
+                    }
+            }
+         6 {
+            :description [
+                          "YOU ARE AT THE ENTRANCE TO A FORBIDDING-LOOKING"
+                          "STONE CASTLE.  YOU ARE FACING EAST"
+                          ]
+            :doors {
+                    :EAST 1
+                    }
+            }
+         7 {
+            :description [
+                          "THIS IS THE CASTLE'S KITCHEN. THROUGH WINDOWS IN"
+                          "THE NORTH WALL YOU CAN SEE A SECRET HERB GARDEN."
+                          "IT HAS BEEN MANY YEARS SINCE MEALS WERE"
+                          "PREPARED FOR THE MONARCH AND THE COURT"
+                          "IN THIS KITCHEN......."
+                          [
+                           (> (d10) 4)
+                           "...A RAT SCURRIES ACROSS THE FLOOR..."
+                           ]
+                          ]
+            :doors {
+                    :SOUTH 8
+                    }
+            }
+         8 {
+            :description [
+                          "YOU ARE IN THE STORE ROOM, AMIDST SPICES,"
+                          "VEGETABLES, AND VAST SACKS OF FLOUR AND"
+                          "OTHER PROVISIONS."
+                          "THE AIR IS THICK WITH SPICE AND CURRY FUMES..."
+                          ]
+            :doors {
+                    :NORTH 7
+                    :SOUTH 10
+                    }
+            }
+         9 {
+            :description [
+                          "YOU HAVE ENTERED THE LIFT..."
+                          "IT SLOWLY DESCENDS..."
+                          ]
+            :auto :DOWN
+            :doors {
+                    :SOUTH 19
+                    :WEST 8
+                    :DOWN 8
+                    }
+            }
+         10 {
+             :description [
+                           "YOU ARE IN THE REAR VESTIBULE"
+                           "THERE ARE WINDOWS TO THE SOUTH FROM WHICH YOU"
+                           "YOU CAN SEE THE ORNAMENTAL LAKE"
+                           "THERE IS AN EXIT TO THE EAST, AND"
+                           "ONE TO THE NORTH"
+                           ]
+             :doors {
+                     :NORTH 8
+                     :EAST 11
+                     }
+             }
+         11 {
+             :description [
+                           "YOU'VE DONE IT!!"
+                           "THAT WAS THE EXIT FROM THE CASTLE"
+                           "YOU MANAGED TO GET OUT OF THE CASTLE"
+                           "WELL DONE!"
+                           ]
+             :doors {
+                     :EAST 10
+                     }
+             }
+         12 {
+             :description [
+                           "YOU ARE IN THE DANK, DARK DUNGEON"
+                           "THERE IS A SINGLE EXIT, A SMALL HOLE IN"
+                           "WALL TOWARDS THE WEST"
+                           [
+                            (> (d10) 4)
+                            "...A HOLLOW, DRY CHUCKLE IS HEARD"
+                            "FROM THE GUARD ROOM...."
+                            ]
+                           ]
+             :doors {
+                     :WEST 13
+                     }
+             }
+         13 {
+             :description [
+                           "YOU ARE IN THE PRISON GUARDROOM, IN THE"
+                           "BASEMENT OF THE CASTLE. THE STAIRWELL"
+                           "ENDS IN THIS ROOM. THERE IS ONE OTHER"
+                           "EXIT, A SMALL HOLE IN THE EAST WALL"
+                           "THE AIR IS DAMP AND UNPLEASANT...A CHILL WIND"
+                           "RUSHES INTO THE ROOM FROM GAPS IN THE STONE"
+                           "AT THE TOP OF THE WALLS"
+                           ]
+             :doors {
+                     :EAST 12
+                     :UP 5
+                     }
+             }
+         14 {
+             :description [
+                           "YOU ARE IN THE MASTER BEDROOM ON THE UPPER"
+                           "LEVEL OF THE CASTLE...."
+                           "LOOKING DOWN FROM THE WINDOW TO THE WEST YOU"
+                           "CAN SEE THE ENTRANCE TO THE CASTLE, WHILE THE"
+                           "SECRET HERB GARDEN IS VISIBLE BELOW THE NORTH"
+                           "WINDOW. THERE ARE DOORS TO THE EAST AND"
+                           "TO THE SOUTH...."
+                           ]
+             :doors {
+                     :SOUTH 15
+                     :EAST 17
+                     }
+             }
+         15 {
+             :description [
+                           "THIS IS THE L-SHAPED UPPER HALLWAY."
+                           [
+                            (> (d10) 4)
+                            "...A MOTH FLITS ACROSS NEAR THE CEILING..."
+                            ]
+                           "TO THE NORTH IS A DOOR, AND THERE IS A"
+                           "STAIRWELL IN THE HALL AS WELL. YOU CAN SEE"
+                           "THE LAKE THROUGH THE SOUTH WINDOWS"
+                           ]
+             :doors {
+                     :NORTH 14
+                     :DOWN 5
+                     }
+             }
+         16 {
+             :description [
+                           "THIS ROOM WAS USED AS THE CASTLE TREASURY IN"
+                           "BY-GONE YEARS...."
+                           [
+                            (> (d10) 4)
+                            "...A SPIDER SCAMPERS DOWN THE WALL........"
+                            ]
+                           "THERE ARE NO WINDOWS, JUST EXITS."
+                           ]
+             :doors {
+                     :NORTH 17
+                     :EAST 19
+                     }
+             }
+         17 {
+             :description [
+                           "OOOOH...YOU ARE IN THE CHAMBERMAIDS' BEDROOM"
+                           "FAINT PERFUME STILL HANGS IN THE AIR..."
+                           "THERE IS AN EXIT TO THE WEST AND A DOOR"
+                           "TO THE SOUTH...."
+                           ]
+             :doors {
+                     :NORTH 18
+                     :SOUTH 16
+                     :WEST 14
+                     }
+             }
+         18 {
+             :description [
+                           "THIS TINY ROOM ON THE UPPER LEVEL IS THE"
+                           "DRESSING CHAMBER. THERE IS A WINDOW TO THE"
+                           "NORTH, WITH A VIEW OF THE HERB GARDEN DOWN"
+                           "BELOW. A DOOR LEAVES TO THE SOUTH"
+                           [
+                            (> (d10) 4)
+                            "YOU CATCH A GLIMPSE OF YOURSELF IN THE MIRROR"
+                            "HANGING ON THE WALL AND ARE SHOCKED AT YOUR"
+                            "DISHEVELED APPEARANCE"
+                            ]
+                           ]
+             :doors {
+                     :SOUTH 17
+                     }
+             }
+         19 {
+             :description [
+                           "THIS IS THE SMALL ROOM OUTSIDE THE CASTLE"
+                           "YOU CAN SEE......................"
+                           "THE LAKE THROUGH THE SOUTHERN WINDOWS"
+                           ]
+             :doors {
+                     :NORTH 9
+                     :EAST 16
+                     }
+             }
+         }
+ }

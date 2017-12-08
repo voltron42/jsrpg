@@ -3,9 +3,11 @@
     <head>
         <title>Play</title>
         <link rel="stylesheet" type="text/css" href="css/main.css">
+        <script src="script/gameUtil.js"></script>
         <script src="script/loadgame.js"></script>
+        <script src="script/game.js"></script>
     </head>
-    <body onload="loadgame()">
+    <body onload="var game = new Game(loadGame('/data'),'out','ctrl');">
         <div id="out"></div>
         <br>
         <div id="ctrl"></div>
