@@ -33,8 +33,7 @@
           [(> :roll 5)
            ($ :MONSTER " ATTACKS")]
           [(<= :roll 5)
-           "YOU ATTACK!"
-           ]
+           "YOU ATTACK!"]
           ]
  :major [{:STRENGTH (- :STRENGTH 5)}
           [
